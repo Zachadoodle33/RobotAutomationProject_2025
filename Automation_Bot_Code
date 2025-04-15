@@ -1,1 +1,16 @@
-dahmer
+myVariable = 0
+
+def when_started1():
+    global myVariable
+    drivetrain.set_drive_velocity(50, PERCENT)
+    drivetrain.set_turn_velocity(500, RPM)
+    wait(0.1, SECONDS)
+    while True:
+        if distance_9.is_object_detected():
+            wait(0.1, SECONDS)
+            drivetrain.drive_for(FORWARD, 12, INCHES)
+        else:
+            drivetrain.turn_for(RIGHT, 10, DEGREES)
+        wait(5, MSEC)
+
+when_started1()
