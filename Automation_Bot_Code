@@ -1,1 +1,53 @@
+myVariable = 0
+message1 = Event()
 
+def when_started1():
+    global myVariable, message1
+    wait(0.1, SECONDS)
+    while True:
+        if distance_9.is_object_detected():
+            drivetrain.stop()
+            wait(0.1, SECONDS)
+            drivetrain.drive_for(FORWARD, 24, INCHES)
+        wait(5, MSEC)
+    # front sensor
+
+def when_started2():
+    global myVariable, message1
+    drivetrain.set_drive_velocity(100, PERCENT)
+    drivetrain.set_turn_velocity(200, RPM)
+    while True:
+        drivetrain.turn_for(RIGHT, 95, DEGREES)
+        drivetrain.turn_for(LEFT, 95, DEGREES)
+        wait(5, MSEC)
+    #
+
+def when_started3():
+    global myVariable, message1
+    while True:
+        if distance_20.is_object_detected():
+            drivetrain.turn_for(RIGHT, 90, DEGREES)
+        wait(5, MSEC)
+    # right sensor
+
+def when_started4():
+    global myVariable, message1
+    while True:
+        if distance_8.is_object_detected():
+            drivetrain.turn_for(RIGHT, 180, DEGREES)
+        wait(5, MSEC)
+    # back sensor
+
+def when_started5():
+    global myVariable, message1
+    while True:
+        if distance_10.is_object_detected():
+            drivetrain.turn_for(LEFT, 90, DEGREES)
+        wait(5, MSEC)
+    # left sensor
+
+ws2 = Thread( when_started2 )
+ws3 = Thread( when_started3 )
+ws4 = Thread( when_started4 )
+ws5 = Thread( when_started5 )
+when_started1()
