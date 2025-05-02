@@ -1,7 +1,57 @@
+#region VEXcode Generated Robot Configuration
+from vex import *
+import urandom
+
+# Brain should be defined by default
+brain=Brain()
+
+# Robot configuration code
+
+
+# wait for rotation sensor to fully initialize
+wait(30, MSEC)
+
+
+# Make random actually random
+def initializeRandomSeed():
+    wait(100, MSEC)
+    random = brain.battery.voltage(MV) + brain.battery.current(CurrentUnits.AMP) * 100 + brain.timer.system_high_res()
+    urandom.seed(int(random))
+      
+# Set random seed 
+initializeRandomSeed()
+
+
+def play_vexcode_sound(sound_name):
+    # Helper to make playing sounds from the V5 in VEXcode easier and
+    # keeps the code cleaner by making it clear what is happening.
+    print("VEXPlaySound:" + sound_name)
+    wait(5, MSEC)
+
+# add a small delay to make sure we don't print in the middle of the REPL header
+wait(200, MSEC)
+# clear the console to make sure we don't have the REPL in the console
+print("\033[2J")
+
+#endregion VEXcode Generated Robot Configuration
+
+# ------------------------------------------
+# 
+# 	Project:      VEXcode Project
+#	Author:       VEX
+#	Created:
+#	Description:  VEXcode V5 Python Project
+# 
+# ------------------------------------------
+
+# Library imports
+from vex import *
+
+# Begin project code
 myVariable = 0
 message1 = Event()
 
-def when_started1():
+def forward():
     global myVariable, message1
     wait(0.1, SECONDS)
     while True:
@@ -12,7 +62,7 @@ def when_started1():
         wait(5, MSEC)
     # front sensor
 
-def when_started2():
+def twist():
     global myVariable, message1
     drivetrain.set_drive_velocity(100, PERCENT)
     drivetrain.set_turn_velocity(200, RPM)
@@ -22,7 +72,7 @@ def when_started2():
         wait(5, MSEC)
     #
 
-def when_started3():
+def turn_right():
     global myVariable, message1
     while True:
         if distance_20.is_object_detected():
@@ -30,7 +80,7 @@ def when_started3():
         wait(5, MSEC)
     # right sensor
 
-def when_started4():
+def turn_around():
     global myVariable, message1
     while True:
         if distance_8.is_object_detected():
@@ -38,7 +88,7 @@ def when_started4():
         wait(5, MSEC)
     # back sensor
 
-def when_started5():
+def turn_left():
     global myVariable, message1
     while True:
         if distance_10.is_object_detected():
@@ -46,8 +96,25 @@ def when_started5():
         wait(5, MSEC)
     # left sensor
 
-ws2 = Thread( when_started2 )
-ws3 = Thread( when_started3 )
-ws4 = Thread( when_started4 )
-ws5 = Thread( when_started5 )
-when_started1()
+
+myVariable = 0
+flipbot = Event()
+
+def flip():
+    global myVariable, flipbot
+    motor_group_7.set_max_torque(300, PERCENT)
+    while True:
+        if distance_9.object_distance(MM) < 300:
+            motor_group_7.spin_for(FORWARD, 180, DEGREES)
+            motor_group_7.spin_for(REVERSE, 180, DEGREES)
+            motor_group_7.stop()
+        wait(5, MSEC)
+
+
+
+ws2 = Thread( twist )
+ws3 = Thread( turn_right )
+ws4 = Thread( turn_around )
+ws5 = Thread( turn_left )
+ws6 = Thread( flip )
+forward()
