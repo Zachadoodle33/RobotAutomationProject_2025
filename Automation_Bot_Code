@@ -6,7 +6,20 @@ import urandom
 brain=Brain()
 
 # Robot configuration code
-
+motor_group_1_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
+motor_group_1_motor_b = Motor(Ports.PORT2, GearSetting.RATIO_18_1, False)
+motor_group_1 = MotorGroup(motor_group_1_motor_a, motor_group_1_motor_b)
+motor_group_3_motor_a = Motor(Ports.PORT3, GearSetting.RATIO_18_1, True)
+motor_group_3_motor_b = Motor(Ports.PORT4, GearSetting.RATIO_18_1, False)
+motor_group_3 = MotorGroup(motor_group_3_motor_a, motor_group_3_motor_b)
+drivetrain = DriveTrain(motor_group_1, motor_group_3, 319.19, 295, 40, MM, 1)
+MotorGroup7_motor_a = Motor(Ports.PORT6, GearSetting.RATIO_18_1, True)
+MotorGroup7_motor_b = Motor(Ports.PORT7, GearSetting.RATIO_18_1, False)
+MotorGroup7 = MotorGroup(MotorGroup7_motor_a, MotorGroup7_motor_b)
+distance_20 = Distance(Ports.PORT20)
+distance_5 = Distance(Ports.PORT5)
+distance_8 = Distance(Ports.PORT8)
+distance_10 = Distance(Ports.PORT10)
 
 # wait for rotation sensor to fully initialize
 wait(30, MSEC)
