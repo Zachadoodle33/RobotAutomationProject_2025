@@ -8,9 +8,9 @@ brain=Brain()
 
 # Robot configuration code
 Motor_Group_1_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
-Motor_Group_1_motor_b = Motor(Ports.PORT2, GearSetting.RATIO_18_1, False)
+Motor_Group_1_motor_b = Motor(Ports.PORT2, GearSetting.RATIO_18_1, True)
 Motor_Group_1 = MotorGroup(Motor_Group_1_motor_a, Motor_Group_1_motor_b)
-Motor_Group_3_motor_a = Motor(Ports.PORT3, GearSetting.RATIO_18_1, True)
+Motor_Group_3_motor_a = Motor(Ports.PORT3, GearSetting.RATIO_18_1, False)
 Motor_Group_3_motor_b = Motor(Ports.PORT4, GearSetting.RATIO_18_1, False)
 Motor_Group_3 = MotorGroup(Motor_Group_3_motor_a, Motor_Group_3_motor_b)
 drivetrain = DriveTrain(Motor_Group_1, Motor_Group_3, 319.19, 295, 40, MM, 1)
