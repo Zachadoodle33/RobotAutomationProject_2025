@@ -132,3 +132,59 @@ ws4 = Thread( turn_around )
 ws5 = Thread( turn_left )
 ws6 = Thread( flip )
 forward()
+controller = Controller()
+
+current_mode = "A"
+button_a_prev_state = False
+mode_thread = None
+
+def mode_a():
+    # Start threads for Mode A (your original logic)
+    global ws2, ws3, ws4, ws5, ws6
+    ws2 = Thread(twist)
+    ws3 = Thread(turn_right)
+    ws4 = Thread(turn_around)
+    ws5 = Thread(turn_left)
+    ws6 = Thread(flip)
+    forward()
+
+def mode_b():
+    brain.screen.print("Mode B active")
+    # Robot configuration code
+motor_group_6_motor_a = Motor(Ports.PORT6, GearSetting.RATIO_18_1, True)
+motor_group_6_motor_b = Motor(Ports.PORT7, GearSetting.RATIO_18_1, False)
+motor_group_6 = MotorGroup(motor_group_6_motor_a, motor_group_6_motor_b)
+left_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_18_1, False)
+left_motor_b = Motor(Ports.PORT2, GearSetting.RATIO_18_1, False)
+left_drive_smart = MotorGroup(left_motor_a, left_motor_b)
+right_motor_a = Motor(Ports.PORT3, GearSetting.RATIO_18_1, True)
+right_motor_b = Motor(Ports.PORT4, GearSetting.RATIO_18_1, True)
+right_drive_smart = MotorGroup(right_motor_a, right_motor_b)
+drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 319.19, 295, 40, MM, 1)
+controller_1 = Controller(PRIMARY)
+    while True:
+        wait(100, MSEC)
+
+def start_mode(mode):
+    global mode_thread
+    if mode_thread is not None:
+        mode_thread.stop()
+    if mode == "A":
+        mode_thread = Thread(mode_a)
+    elif mode == "B":
+        mode_thread = Thread(mode_b)
+
+# Start with Mode A
+start_mode(current_mode)
+
+# Monitor for button A toggles
+while True:
+    button_a_current = controller.buttonA.pressing()
+    if button_a_current and not button_a_prev_state:
+        # Button A was just pressed
+        current_mode = "B" if current_mode == "A" else "A"
+        brain.screen.clear_screen()
+        brain.screen.print("Switched to Mode " + current_mode)
+        start_mode(current_mode)
+    button_a_prev_state = button_a_current
+    wait(50, MSEC)
