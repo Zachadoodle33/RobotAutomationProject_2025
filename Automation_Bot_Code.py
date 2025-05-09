@@ -1,10 +1,9 @@
-
 #region VEXcode Generated Robot Configuration
 from vex import *
 import urandom
 
 # Brain should be defined by default
-brain=Brain()
+brain = Brain()
 
 # Robot configuration code
 Motor_Group_1_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
@@ -21,152 +20,121 @@ distance_20 = Distance(Ports.PORT20)
 distance_5 = Distance(Ports.PORT5)
 distance_8 = Distance(Ports.PORT8)
 distance_10 = Distance(Ports.PORT10)
+line_sensor = Line(Ports.A)
 
 # wait for rotation sensor to fully initialize
 wait(30, MSEC)
-
 
 # Make random actually random
 def initializeRandomSeed():
     wait(100, MSEC)
     random = brain.battery.voltage(MV) + brain.battery.current(CurrentUnits.AMP) * 100 + brain.timer.system_high_res()
     urandom.seed(int(random))
-      
+
 # Set random seed 
 initializeRandomSeed()
 
 
 def play_vexcode_sound(sound_name):
-    # Helper to make playing sounds from the V5 in VEXcode easier and
-    # keeps the code cleaner by making it clear what is happening.
     print("VEXPlaySound:" + sound_name)
     wait(5, MSEC)
 
-# add a small delay to make sure we don't print in the middle of the REPL header
 wait(200, MSEC)
-# clear the console to make sure we don't have the REPL in the console
 print("\033[2J")
-
 #endregion VEXcode Generated Robot Configuration
 
-# ------------------------------------------
-# 
-# 	Project:      VEXcode Project
-#	Author:       VEX
-#	Created:
-#	Description:  VEXcode V5 Python Project
-# 
-# ------------------------------------------
-
-# Library imports
 from vex import *
 
-# Begin project code
+# Global state control
 myVariable = 0
-message1 = Event()
+flipbot = Event()
+running = True
 
+# Behavior Functions
 def forward():
-    global myVariable, message1
+    global running
     wait(0.1, SECONDS)
-    while True:
+    while running:
         if distance_5.is_object_detected():
             drivetrain.stop()
             wait(0.1, SECONDS)
             drivetrain.drive_for(FORWARD, 24, INCHES)
         wait(5, MSEC)
-    # front sensor
 
 def twist():
-    global myVariable, message1
+    global running
     drivetrain.set_drive_velocity(100, PERCENT)
     drivetrain.set_turn_velocity(200, RPM)
-    while True:
+    while running:
         drivetrain.turn_for(RIGHT, 95, DEGREES)
         drivetrain.turn_for(LEFT, 95, DEGREES)
         wait(5, MSEC)
-    #
 
 def turn_right():
-    global myVariable, message1
-    while True:
+    global running
+    while running:
         if distance_20.is_object_detected():
             drivetrain.turn_for(RIGHT, 90, DEGREES)
         wait(5, MSEC)
-    # right sensor
 
 def turn_around():
-    global myVariable, message1
-    while True:
+    global running
+    while running:
         if distance_8.is_object_detected():
             drivetrain.turn_for(RIGHT, 180, DEGREES)
         wait(5, MSEC)
-    # back sensor
 
 def turn_left():
-    global myVariable, message1
-    while True:
+    global running
+    while running:
         if distance_10.is_object_detected():
             drivetrain.turn_for(LEFT, 90, DEGREES)
         wait(5, MSEC)
-    # left sensor
-
-
-myVariable = 0
-flipbot = Event()
 
 def flip():
-    global myVariable, flipbot
+    global running
     Motor_Group_7.set_max_torque(300, PERCENT)
-    while True:
+    while running:
         if distance_5.object_distance(MM) < 300:
             Motor_Group_7.spin_for(FORWARD, 180, DEGREES)
             Motor_Group_7.spin_for(REVERSE, 180, DEGREES)
             Motor_Group_7.stop()
         wait(5, MSEC)
 
+def line_detect_turn():
+    global running
+    while running:
+        if line_sensor.reflectivity() < 50:
+            drivetrain.turn_for(RIGHT, 180, DEGREES)
+            wait(500, MSEC)  # Prevent multiple triggers
+        wait(50, MSEC)
 
-
-ws2 = Thread( twist )
-ws3 = Thread( turn_right )
-ws4 = Thread( turn_around )
-ws5 = Thread( turn_left )
-ws6 = Thread( flip )
-forward()
+# Mode system
 controller = Controller()
-
 current_mode = "A"
 button_a_prev_state = False
 mode_thread = None
 
 def mode_a():
-    # Start threads for Mode A (your original logic)
-    global ws2, ws3, ws4, ws5, ws6
+    global ws2, ws3, ws4, ws5, ws6, ws7
     ws2 = Thread(twist)
     ws3 = Thread(turn_right)
     ws4 = Thread(turn_around)
     ws5 = Thread(turn_left)
     ws6 = Thread(flip)
+    ws7 = Thread(line_detect_turn)
     forward()
 
 def mode_b():
     brain.screen.print("Mode B active")
-    # Robot configuration code
-motor_group_6_motor_a = Motor(Ports.PORT6, GearSetting.RATIO_18_1, True)
-motor_group_6_motor_b = Motor(Ports.PORT7, GearSetting.RATIO_18_1, False)
-motor_group_6 = MotorGroup(motor_group_6_motor_a, motor_group_6_motor_b)
-left_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_18_1, False)
-left_motor_b = Motor(Ports.PORT2, GearSetting.RATIO_18_1, False)
-left_drive_smart = MotorGroup(left_motor_a, left_motor_b)
-right_motor_a = Motor(Ports.PORT3, GearSetting.RATIO_18_1, True)
-right_motor_b = Motor(Ports.PORT4, GearSetting.RATIO_18_1, True)
-right_drive_smart = MotorGroup(right_motor_a, right_motor_b)
-drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 319.19, 295, 40, MM, 1)
-controller_1 = Controller(PRIMARY)
-    while True:
+    while running:
         wait(100, MSEC)
 
 def start_mode(mode):
-    global mode_thread
+    global mode_thread, running
+    running = False
+    wait(100, MSEC)
+    running = True
     if mode_thread is not None:
         mode_thread.stop()
     if mode == "A":
@@ -174,14 +142,12 @@ def start_mode(mode):
     elif mode == "B":
         mode_thread = Thread(mode_b)
 
-# Start with Mode A
 start_mode(current_mode)
 
-# Monitor for button A toggles
+# Main loop for mode toggling
 while True:
     button_a_current = controller.buttonA.pressing()
     if button_a_current and not button_a_prev_state:
-        # Button A was just pressed
         current_mode = "B" if current_mode == "A" else "A"
         brain.screen.clear_screen()
         brain.screen.print("Switched to Mode " + current_mode)
